@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>헤슈 타일링(Heesch Tiling) 수학 탐구</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Noto Sans KR Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+        .step-tab.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .canvas-container {
+            position: relative;
+            touch-action: none;
+        }
+        /* Grid background pattern for editing canvas */
+        .bg-grid {
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">헤슈 타일링(Heesch Tiling) 탐구</h1>
+                    <p class="text-xs text-slate-500">중학교 수학 테셀레이션 인터랙티브 학습지</p>
+                </div>
+            </div>
+
+            <!-- Step Progress Navigation -->
+            <nav class="flex items-center bg-slate-100 p-1.5 rounded-2xl text-xs sm:text-sm font-medium w-full md:w-auto overflow-x-auto">
+                <button onclick="switchStep(1)" id="tab-step-1" class="step-tab active px-3 sm:px-4 py-2 rounded-xl transition flex items-center space-x-1.5 whitespace-nowrap">
+                    <span>1. 이동의 원리</span>
+                </button>
+                <button onclick="switchStep(2)" id="tab-step-2" class="step-tab px-3 sm:px-4 py-2 rounded-xl text-slate-600 transition flex items-center space-x-1.5 whitespace-nowrap">
+                    <span>2. 5가지 헤슈 타입</span>
+                </button>
+                <button onclick="switchStep(3)" id="tab-step-3" class="step-tab px-3 sm:px-4 py-2 rounded-xl text-slate-600 transition flex items-center space-x-1.5 whitespace-nowrap">
+                    <span>3. 타일 변형 스튜디오</span>
+                </button>
+                <button onclick="switchStep(4)" id="tab-step-4" class="step-tab px-3 sm:px-4 py-2 rounded-xl text-slate-600 transition flex items-center space-x-1.5 whitespace-nowrap">
+                    <span>4. 화면 채우기 & 작품</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ========================================== -->
+        <!-- STEP 1: [개념 1] 도형 변환과 이동 원리 -->
+        <!-- ========================================== -->
+        <section id="step-1" class="space-y-6">
+            <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-indigo-500/40 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">개념 1</span>
+                    <h2 class="text-2xl font-black mt-2">도형 변환에서의 이동</h2>
+                    <p class="text-indigo-100 text-sm mt-1">테셀레이션을 만들기 위해 도형의 변을 이동시키는 4가지 기본 합동 변환의 원리를 살펴보세요.</p>
+                </div>
+                <i class="fa-solid fa-arrows-spin absolute -right-6 -bottom-6 text-9xl text-indigo-800/40 pointer-events-none"></i>
+            </div>
+
+            <!-- Transformation Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 1. Translation (T) -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg text-sm">T : Translation</span>
+                            <span class="text-xs font-semibold text-slate-400">평행이동 (옮기기)</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">도형을 한 방향으로 일정한 거리만큼 그대로 움직이는 변환입니다.</p>
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex justify-center items-center h-40">
+                            <canvas id="canvas-demo-t" width="300" height="140"></canvas>
+                        </div>
+                    </div>
+                    <button onclick="playDemo('t')" class="mt-4 w-full bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>평행이동 시뮬레이션 실행</span>
+                    </button>
+                </div>
+
+                <!-- 2. Center Rotation (C) -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg text-sm">C : Center Point Rotation</span>
+                            <span class="text-xs font-semibold text-slate-400">변 중심 회전이동 (180°)</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">다각형 변의 중점을 회전 중심으로 180° 돌리는 점대칭 변환입니다.</p>
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex justify-center items-center h-40">
+                            <canvas id="canvas-demo-c" width="300" height="140"></canvas>
+                        </div>
+                    </div>
+                    <button onclick="playDemo('c')" class="mt-4 w-full bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>중심 회전 시뮬레이션 실행</span>
+                    </button>
+                </div>
+
+                <!-- 3. Corner Rotation (C4) -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg text-sm">C₄ : Corner Rotation</span>
+                            <span class="text-xs font-semibold text-slate-400">꼭짓점 회전이동 (90°)</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">사각형의 꼭짓점을 중심으로 변을 90°만큼 돌려 이웃하는 변으로 이동합니다.</p>
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex justify-center items-center h-40">
+                            <canvas id="canvas-demo-c4" width="300" height="140"></canvas>
+                        </div>
+                    </div>
+                    <button onclick="playDemo('c4')" class="mt-4 w-full bg-slate-100 hover:bg-amber-600 hover:text-white text-slate-700 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>꼭짓점 회전 시뮬레이션 실행</span>
+                    </button>
+                </div>
+
+                <!-- 4. Glide Reflection (G) -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg text-sm">G : Glide Reflection</span>
+                            <span class="text-xs font-semibold text-slate-400">미끄럼 반사 (뒤집어 옮기기)</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">도형을 대칭축을 중심으로 뒤집은(반사) 후, 축 방향으로 평행이동합니다.</p>
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex justify-center items-center h-40">
+                            <canvas id="canvas-demo-g" width="300" height="140"></canvas>
+                        </div>
+                    </div>
+                    <button onclick="playDemo('g')" class="mt-4 w-full bg-slate-100 hover:bg-rose-600 hover:text-white text-slate-700 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>미끄럼 반사 시뮬레이션 실행</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start space-x-3 text-amber-900 text-sm">
+                <i class="fa-solid fa-lightbulb text-amber-500 text-lg mt-0.5"></i>
+                <div>
+                    <strong class="font-bold">헤슈 타일링에서 '순수 반사(Reflect)'를 제외하는 이유:</strong>
+                    <p class="text-amber-800 text-xs mt-0.5">단순히 뒤집기만 하는 반사 변환은 무늬를 연속으로 연결할 때 제약이 너무 많아집니다. 따라서 하인리히 헤슈는 평행이동(T), 회전이동(C), 미끄럼 반사(G)만을 활용하여 28가지 기본 타일 타입을 정립하였습니다.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- STEP 2: [개념 2] 정사각형 헤슈 타일 5가지 타입 -->
+        <!-- ========================================== -->
+        <section id="step-2" class="space-y-6 hidden">
+            <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-indigo-500/40 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">개념 2</span>
+                    <h2 class="text-2xl font-black mt-2">정사각형 기반 헤슈 타일 5가지</h2>
+                    <p class="text-indigo-100 text-sm mt-1">사각형으로 평면을 빈틈없이 채울 수 있는 헤슈의 5가지 변형 조합 규칙을 알아봅니다.</p>
+                </div>
+            </div>
+
+            <!-- 5 Types Interactive Explorer Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- TTTT -->
+                <button onclick="selectConceptType('TTTT')" id="card-type-TTTT" class="bg-white p-4 rounded-2xl border-2 border-indigo-500 shadow-md text-left transition hover:border-indigo-600">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-black text-lg text-indigo-600">TTTT</span>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded">타입 1</span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">두 쌍 대변 평행이동</p>
+                    <div class="mt-3 bg-slate-50 rounded-xl p-2 h-28 flex items-center justify-center">
+                        <canvas id="icon-TTTT" width="90" height="90"></canvas>
+                    </div>
+                </button>
+
+                <!-- CCCC -->
+                <button onclick="selectConceptType('CCCC')" id="card-type-CCCC" class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm text-left transition hover:border-indigo-600">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-black text-lg text-emerald-600">CCCC</span>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">타입 2</span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">네 변 각각 중심회전</p>
+                    <div class="mt-3 bg-slate-50 rounded-xl p-2 h-28 flex items-center justify-center">
+                        <canvas id="icon-CCCC" width="90" height="90"></canvas>
+                    </div>
+                </button>
+
+                <!-- C4C4C4C4 -->
+                <button onclick="selectConceptType('C4C4C4C4')" id="card-type-C4C4C4C4" class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm text-left transition hover:border-indigo-600">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-black text-lg text-amber-600">C₄C₄C₄C₄</span>
+                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">타입 3</span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">이웃 두 변 꼭짓점회전</p>
+                    <div class="mt-3 bg-slate-50 rounded-xl p-2 h-28 flex items-center justify-center">
+                        <canvas id="icon-C4C4C4C4" width="90" height="90"></canvas>
+                    </div>
+                </button>
+
+                <!-- TCTC -->
+                <button onclick="selectConceptType('TCTC')" id="card-type-TCTC" class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm text-left transition hover:border-indigo-600">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-black text-lg text-cyan-600">TCTC</span>
+                        <span class="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded">타입 4</span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">한 쌍 평행 + 한 쌍 중심회전</p>
+                    <div class="mt-3 bg-slate-50 rounded-xl p-2 h-28 flex items-center justify-center">
+                        <canvas id="icon-TCTC" width="90" height="90"></canvas>
+                    </div>
+                </button>
+
+                <!-- TGTG -->
+                <button onclick="selectConceptType('TGTG')" id="card-type-TGTG" class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm text-left transition hover:border-indigo-600">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-black text-lg text-rose-600">TGTG</span>
+                        <span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded">타입 5</span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-700">한 쌍 평행 + 한 쌍 미끄럼반사</p>
+                    <div class="mt-3 bg-slate-50 rounded-xl p-2 h-28 flex items-center justify-center">
+                        <canvas id="icon-TGTG" width="90" height="90"></canvas>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Detailed Explanation Box for Selected Type -->
+            <div id="type-detail-box" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-full md:w-1/2 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center h-64">
+                    <canvas id="canvas-type-detail" width="240" height="240"></canvas>
+                </div>
+                <div class="w-full md:w-1/2 space-y-4">
+                    <div>
+                        <span id="detail-tag" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-md">TTTT 타입 상세 설명</span>
+                        <h3 id="detail-title" class="text-xl font-bold text-slate-900 mt-2">TTTT : 평행이동 + 평행이동</h3>
+                        <p id="detail-desc" class="text-sm text-slate-600 mt-1 leading-relaxed">
+                            위쪽 변을 변형시키면 아래쪽 변이 똑같은 모양으로 평행이동($T$)하여 연동됩니다. 왼쪽 변을 변형시키면 오른쪽 변도 똑같이 평행이동($T$)하여 이동합니다.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">위-아래 변 관계:</span>
+                            <span id="detail-pair1" class="font-bold text-indigo-600">평행이동 (T)</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">좌-우 변 관계:</span>
+                            <span id="detail-pair2" class="font-bold text-indigo-600">평행이동 (T)</span>
+                        </div>
+                    </div>
+
+                    <button onclick="goToStudioWithType()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md flex items-center justify-center space-x-2">
+                        <span>이 타입으로 직접 변형하러 가기</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- STEP 3: [실습 1] 기본 정사각형 변 변형 스튜디오 -->
+        <!-- ========================================== -->
+        <section id="step-3" class="space-y-6 hidden">
+            <!-- Top Controls Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2 w-full md:w-auto overflow-x-auto">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">헤슈 타입:</span>
+                    <button onclick="setStudioType('TTTT')" id="btn-st-TTTT" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition border-indigo-600 bg-indigo-600 text-white">TTTT</button>
+                    <button onclick="setStudioType('CCCC')" id="btn-st-CCCC" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition border-slate-200 text-slate-700 hover:bg-slate-50">CCCC</button>
+                    <button onclick="setStudioType('C4C4C4C4')" id="btn-st-C4C4C4C4" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition border-slate-200 text-slate-700 hover:bg-slate-50">C₄C₄C₄C₄</button>
+                    <button onclick="setStudioType('TCTC')" id="btn-st-TCTC" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition border-slate-200 text-slate-700 hover:bg-slate-50">TCTC</button>
+                    <button onclick="setStudioType('TGTG')" id="btn-st-TGTG" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition border-slate-200 text-slate-700 hover:bg-slate-50">TGTG</button>
+                </div>
+
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button onclick="toggleGridSnap()" id="btn-grid-snap" class="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center space-x-1">
+                        <i class="fa-solid fa-border-all"></i>
+                        <span>격자 자석</span>
+                    </button>
+                    <button onclick="resetCurrentShape()" class="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center space-x-1">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>초기화</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Main Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Canvas Left (3 cols) -->
+                <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col items-center justify-center relative">
+                    <div class="canvas-container bg-grid rounded-xl border border-slate-200 overflow-hidden shadow-inner w-full max-w-[500px] aspect-square">
+                        <canvas id="studio-canvas" width="500" height="500" class="w-full h-full cursor-crosshair"></canvas>
+                    </div>
+
+                    <!-- Guidance Banner -->
+                    <div class="mt-4 w-full max-w-[500px] bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex items-center justify-between text-xs text-indigo-900">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-hand-pointer text-indigo-600 text-base animate-bounce"></i>
+                            <span>변의 <strong>점(조절점)</strong>을 드래그하세요! 대응되는 변이 실시간으로 변형됩니다.</span>
+                        </div>
+                        <span id="active-rule-badge" class="font-bold bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded text-[10px]">TTTT 규칙 적용 중</span>
+                    </div>
+                </div>
+
+                <!-- Studio Sidebar Controls (1 col) -->
+                <div class="space-y-4">
+                    <!-- Presets -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">추천 캐릭터 모양 (프리셋)</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="loadPreset('bird')" class="p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-slate-700 text-xs font-bold transition flex items-center space-x-2">
+                                <span class="text-base">🐦</span>
+                                <span>새 (Bird)</span>
+                            </button>
+                            <button onclick="loadPreset('fish')" class="p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-slate-700 text-xs font-bold transition flex items-center space-x-2">
+                                <span class="text-base">🐟</span>
+                                <span>물고기</span>
+                            </button>
+                            <button onclick="loadPreset('dog')" class="p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-slate-700 text-xs font-bold transition flex items-center space-x-2">
+                                <span class="text-base">🐶</span>
+                                <span>강아지</span>
+                            </button>
+                            <button onclick="loadPreset('puzzle')" class="p-2.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-slate-700 text-xs font-bold transition flex items-center space-x-2">
+                                <span class="text-base">🧩</span>
+                                <span>퍼즐</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Point Tools -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">조절점 관리</h4>
+                        <div class="flex space-x-2">
+                            <button onclick="addControlPoint()" class="flex-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-200 transition flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-plus text-indigo-500"></i>
+                                <span>점 추가</span>
+                            </button>
+                            <button onclick="removeControlPoint()" class="flex-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-200 transition flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-minus text-rose-500"></i>
+                                <span>점 삭제</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Proceed to Step 4 Button -->
+                    <button onclick="switchStep(4)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-border-all"></i>
+                        <span>테셀레이션 화면 채우기</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- STEP 4: [실습 2] 테셀레이션 '화면 채우기' & 작품 완성 -->
+        <!-- ========================================== -->
+        <section id="step-4" class="space-y-6 hidden">
+            <!-- Controls Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
+                <!-- Theme Selectors -->
+                <div class="flex items-center space-x-3 w-full lg:w-auto">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">색상 테마:</span>
+                    <div class="flex space-x-1.5 overflow-x-auto">
+                        <button onclick="setTilingTheme('pastel')" id="theme-pastel" class="px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-600 bg-indigo-50 text-indigo-700">파스텔</button>
+                        <button onclick="setTilingTheme('vibrant')" id="theme-vibrant" class="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-50">알록달록</button>
+                        <button onclick="setTilingTheme('mono')" id="theme-mono" class="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-50">스케치 모드</button>
+                    </div>
+                </div>
+
+                <!-- Decorate Tools / Action Buttons -->
+                <div class="flex items-center space-x-2 w-full lg:w-auto justify-end">
+                    <button onclick="triggerFillAnimation()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-play"></i>
+                        <span>화면 채우기 재생</span>
+                    </button>
+                    <button onclick="downloadCanvasImage()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download"></i>
+                        <span>작품 다운로드 (PNG)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Canvas and Decoration Sidebar Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Tiling Canvas Container (3 cols) -->
+                <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col items-center justify-center relative">
+                    <div class="canvas-container rounded-xl border border-slate-200 overflow-hidden shadow-inner w-full max-w-[650px] aspect-square relative">
+                        <canvas id="tiling-canvas" width="650" height="650" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Activity 6 Decorate Sidebar (1 col) -->
+                <div class="space-y-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">타일 연상 그림 꾸미기 (활동지 6)</h4>
+                            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">스탬프</span>
+                        </div>
+                        <p class="text-xs text-slate-500">타일을 하나 클릭하여 눈, 입 스탬프를 붙이고 나만의 동물/캐릭터로 꾸며보세요!</p>
+
+                        <!-- Stamp Palette -->
+                        <div class="grid grid-cols-4 gap-2 pt-2">
+                            <button onclick="selectStamp('eye1')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">👁️</button>
+                            <button onclick="selectStamp('eye2')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">✨</button>
+                            <button onclick="selectStamp('mouth1')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">👄</button>
+                            <button onclick="selectStamp('mouth2')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">😃</button>
+                            <button onclick="selectStamp('crown')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">👑</button>
+                            <button onclick="selectStamp('glasses')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">👓</button>
+                            <button onclick="selectStamp('star')" class="stamp-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-center text-lg">⭐</button>
+                            <button onclick="clearStamps()" class="p-2 rounded-xl border border-slate-200 text-rose-500 hover:bg-rose-50 text-center text-xs font-bold">지우기</button>
+                        </div>
+                    </div>
+
+                    <!-- Padlet Submission Helper -->
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-indigo-950 space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
+                            <h5 class="text-xs font-bold">활동 마무리 및 제출</h5>
+                        </div>
+                        <p class="text-xs text-indigo-800 leading-relaxed">
+                            완성된 작품을 PNG 이미지로 다운로드한 후, 학급 패들렛(Padlet) 게시판에 등록하고 연상되는 모양의 이름을 지어주세요!
+                        </p>
+                    </div>
+
+                    <!-- Back to Edit -->
+                    <button onclick="switchStep(3)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl transition text-xs flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-pen"></i>
+                        <span>타일 모양 다시 수정하기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>중학교 수학 탐구 활동 - 헤슈 타일링(Heesch Tiling) 테셀레이션 스튜디오</p>
+    </footer>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT APP LOGIC -->
+    <!-- ========================================== -->
+    <script>
+        // Global App State
+        let currentStep = 1;
+        let currentType = 'TTTT'; // Default type
+        let gridSnap = true;
+        let currentTheme = 'pastel';
+        let activeStamp = 'eye1';
+        let stampsList = []; // Added stamps on tiling canvas
+
+        // Edge Control Points state (Relative coordinates in unit 0..1)
+        // Master top edge, master left edge, etc.
+        let edgeControlPoints = {
+            top: [{x: 0, y: 0}, {x: 0.33, y: -0.1}, {x: 0.66, y: 0.1}, {x: 1, y: 0}],
+            left: [{x: 0, y: 0}, {x: -0.1, y: 0.33}, {x: 0.1, y: 0.66}, {x: 0, y: 1}]
+        };
+
+        // Presets relative offsets
+        const PRESETS = {
+            bird: {
+                top: [{x:0, y:0}, {x:0.2, y:-0.25}, {x:0.7, y:-0.1}, {x:1, y:0}],
+                left: [{x:0, y:0}, {x:-0.15, y:0.4}, {x:0.25, y:0.8}, {x:0, y:1}]
+            },
+            fish: {
+                top: [{x:0, y:0}, {x:0.3, y:-0.3}, {x:0.8, y:0.15}, {x:1, y:0}],
+                left: [{x:0, y:0}, {x:-0.2, y:0.3}, {x:-0.1, y:0.7}, {x:0, y:1}]
+            },
+            dog: {
+                top: [{x:0, y:0}, {x:0.4, y:-0.2}, {x:0.6, y:0.2}, {x:1, y:0}],
+                left: [{x:0, y:0}, {x:-0.2, y:0.2}, {x:0.2, y:0.6}, {x:0, y:1}]
+            },
+            puzzle: {
+                top: [{x:0, y:0}, {x:0.35, y:0}, {x:0.35, y:-0.25}, {x:0.65, y:-0.25}, {x:0.65, y:0}, {x:1, y:0}],
+                left: [{x:0, y:0}, {x:0, y:0.35}, {x:0.25, y:0.35}, {x:0.25, y:0.65}, {x:0, y:0.65}, {x:0, y:1}]
+            }
+        };
+
+        // Initialize App on DOM Loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            initStep1Demos();
+            initStep2Icons();
+            initStep3Canvas();
+            initStep4Canvas();
+            updateStep2Detail('TTTT');
+        });
+
+        // Step Switcher
+        function switchStep(stepNum) {
+            currentStep = stepNum;
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const tabEl = document.getElementById(`tab-step-${i}`);
+                if (i === stepNum) {
+                    stepEl.classList.remove('hidden');
+                    tabEl.classList.add('active');
+                    tabEl.classList.remove('text-slate-600');
+                } else {
+                    stepEl.classList.add('hidden');
+                    tabEl.classList.remove('active');
+                    tabEl.classList.add('text-slate-600');
+                }
+            }
+
+            if (stepNum === 3) {
+                renderStudioCanvas();
+            } else if (stepNum === 4) {
+                triggerFillAnimation();
+            }
+        }
+
+        // ====================================================
+        // STEP 1: Interactive Transformation Demos
+        // ====================================================
+        const demoAnimFrames = { t: 0, c: 0, c4: 0, g: 0 };
+        const demoAnimIntervals = {};
+
+        function initStep1Demos() {
+            drawDemoCanvas('t', 0);
+            drawDemoCanvas('c', 0);
+            drawDemoCanvas('c4', 0);
+            drawDemoCanvas('g', 0);
+        }
+
+        function playDemo(type) {
+            if (demoAnimIntervals[type]) clearInterval(demoAnimIntervals[type]);
+            demoAnimFrames[type] = 0;
+            demoAnimIntervals[type] = setInterval(() => {
+                demoAnimFrames[type] += 0.03;
+                if (demoAnimFrames[type] > 1) {
+                    demoAnimFrames[type] = 1;
+                    clearInterval(demoAnimIntervals[type]);
+                }
+                drawDemoCanvas(type, demoAnimFrames[type]);
+            }, 20);
+        }
+
+        function drawDemoCanvas(type, progress) {
+            const canvas = document.getElementById(`canvas-demo-${type}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const x0 = 50, y0 = 90, length = 100;
+
+            // Draw Base Edge Line
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0 + length, y0);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Sample Curve Path
+            function drawSampleCurve(cCtx, startX, startY, len, scaleY = 1) {
+                cCtx.beginPath();
+                cCtx.moveTo(startX, startY);
+                cCtx.bezierCurveTo(startX + len * 0.3, startY - 30 * scaleY, startX + len * 0.6, startY + 30 * scaleY, startX + len, startY);
+                cCtx.stroke();
+            }
+
+            // Original Edge
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            drawSampleCurve(ctx, x0, y0, length);
+
+            // Transformed Edge according to type
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 3;
+
+            if (type === 't') { // Translation
+                const currentY = y0 - progress * 50;
+                drawSampleCurve(ctx, x0, currentY, length);
+            } else if (type === 'c') { // Center rotation
+                const midX = x0 + length / 2, midY = y0;
+                ctx.save();
+                ctx.translate(midX, midY);
+                ctx.rotate(progress * Math.PI);
+                drawSampleCurve(ctx, -length / 2, 0, length);
+                ctx.restore();
+
+                // Draw Center Dot
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.arc(midX, midY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'c4') { // Corner rotation
+                const cornerX = x0 + length, cornerY = y0;
+                ctx.save();
+                ctx.translate(cornerX, cornerY);
+                ctx.rotate(progress * (Math.PI / 2));
+                drawSampleCurve(ctx, -length, 0, length);
+                ctx.restore();
+
+                // Draw Corner Dot
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(cornerX, cornerY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'g') { // Glide reflection
+                const currentX = x0 + progress * 80;
+                drawSampleCurve(ctx, currentX, y0 - 40, length, -1);
+            }
+        }
+
+
+        // ====================================================
+        // STEP 2: 5 Square Heesch Types Visual Explorer
+        // ====================================================
+        function initStep2Icons() {
+            const types = ['TTTT', 'CCCC', 'C4C4C4C4', 'TCTC', 'TGTG'];
+            types.forEach(t => renderMiniSquareIcon(t));
+        }
+
+        function renderMiniSquareIcon(type) {
+            const canvas = document.getElementById(`icon-${type}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 15;
+            const size = canvas.width - padding * 2;
+            ctx.lineWidth = 3;
+
+            // Draw Square Sides with matching colors according to pairs
+            // Pair colors: T: indigo/rose, C: emerald, G: cyan
+            ctx.strokeStyle = '#6366f1';
+            ctx.strokeRect(padding, padding, size, size);
+
+            // Add center dots / indicators
+            if (type.includes('C')) {
+                ctx.fillStyle = '#10b981';
+                // Edge center dots
+                [
+                    [padding + size/2, padding],
+                    [padding + size, padding + size/2],
+                    [padding + size/2, padding + size],
+                    [padding, padding + size/2]
+                ].forEach(([cx, cy]) => {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        const TYPE_DESCRIPTIONS = {
+            'TTTT': {
+                title: 'TTTT : 평행이동 + 평행이동',
+                tag: '타입 1 (Translation x 2)',
+                pair1: '평행이동 (T)',
+                pair2: '평행이동 (T)',
+                desc: '마주 보는 두 쌍의 대변이 각각 방향과 형태를 유지하며 평행이동합니다. 가장 직관적이고 다루기 쉬운 기본 헤슈 타일입니다.'
+            },
+            'CCCC': {
+                title: 'CCCC : 4변 중심 회전이동',
+                tag: '타입 2 (Center Rotation x 4)',
+                pair1: '변 중심 180° 회전 (C)',
+                pair2: '변 중심 180° 회전 (C)',
+                desc: '사각형의 네 변이 각각 자기 변의 중점을 중심으로 180° 회전 점대칭을 이룹니다. 한 변의 반쪽만 모양을 바꾸면 전체 변이 회전하여 완성됩니다.'
+            },
+            'C4C4C4C4': {
+                title: 'C₄C₄C₄C₄ : 이웃변 꼭짓점 회전이동',
+                tag: '타입 3 (Corner Rotation x 4)',
+                pair1: '꼭짓점 중심 90° 회전 (C₄)',
+                pair2: '꼭짓점 중심 90° 회전 (C₄)',
+                desc: '이웃하는 두 변이 사각형의 꼭짓점을 중심으로 90° 회전하여 짝을 이룹니다. 바람개비 모양의 회전 대칭 테셀레이션이 형성됩니다.'
+            },
+            'TCTC': {
+                title: 'TCTC : 평행이동 + 중심 회전이동',
+                tag: '타입 4 (Translation & Center Rotation)',
+                pair1: '위-아래 대변 : 평행이동 (T)',
+                pair2: '좌-우 대변 : 중심 회전이동 (C)',
+                desc: '위-아래 변은 평행이동(T)으로 연결되고, 좌-우 변은 각각 자신의 중점을 중심으로 회전점대칭(C)을 이룹니다.'
+            },
+            'TGTG': {
+                title: 'TGTG : 평행이동 + 미끄럼 반사',
+                tag: '타입 5 (Translation & Glide Reflection)',
+                pair1: '위-아래 대변 : 평행이동 (T)',
+                pair2: '좌-우 대변 : 미끄럼 반사 (G)',
+                desc: '위-아래 대변은 평행이동(T)으로, 좌-우 대변은 뒤집어진 후 이동하는 미끄럼 반사(G) 규칙을 따릅니다.'
+            }
+        };
+
+        function selectConceptType(type) {
+            currentType = type;
+            ['TTTT', 'CCCC', 'C4C4C4C4', 'TCTC', 'TGTG'].forEach(t => {
+                const card = document.getElementById(`card-type-${t}`);
+                if (t === type) {
+                    card.classList.add('border-indigo-500', 'shadow-md');
+                    card.classList.remove('border-slate-200');
+                } else {
+                    card.classList.remove('border-indigo-500', 'shadow-md');
+                    card.classList.add('border-slate-200');
+                }
+            });
+            updateStep2Detail(type);
+        }
+
+        function updateStep2Detail(type) {
+            const data = TYPE_DESCRIPTIONS[type];
+            document.getElementById('detail-tag').innerText = data.tag;
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-desc').innerText = data.desc;
+            document.getElementById('detail-pair1').innerText = data.pair1;
+            document.getElementById('detail-pair2').innerText = data.pair2;
+
+            // Render Detail Diagram
+            const canvas = document.getElementById('canvas-type-detail');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const margin = 40, size = 160;
+            ctx.lineWidth = 4;
+
+            // Draw square frame with colored sides
+            ctx.strokeStyle = '#6366f1';
+            ctx.strokeRect(margin, margin, size, size);
+
+            // Arrows / symmetry markers
+            ctx.fillStyle = '#4f46e5';
+            ctx.font = 'bold 12px Noto Sans KR';
+            ctx.fillText("Top", margin + size / 2 - 12, margin - 10);
+            ctx.fillText("Bottom", margin + size / 2 - 20, margin + size + 20);
+        }
+
+        function goToStudioWithType() {
+            setStudioType(currentType);
+            switchStep(3);
+        }
+
+
+        // ====================================================
+        // STEP 3: Basic Square Transformation Studio Engine
+        // ====================================================
+        let studioCanvas, studioCtx;
+        let isDragging = false;
+        let activePointInfo = null; // { edge: 'top'|'left', index: number }
+
+        function initStep3Canvas() {
+            studioCanvas = document.getElementById('studio-canvas');
+            if (!studioCanvas) return;
+            studioCtx = studioCanvas.getContext('2d');
+
+            // Mouse / Touch Drag Listeners
+            studioCanvas.addEventListener('mousedown', onStudioPointerDown);
+            studioCanvas.addEventListener('mousemove', onStudioPointerMove);
+            window.addEventListener('mouseup', onStudioPointerUp);
+
+            studioCanvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
+                studioCanvas.dispatchEvent(mouseEvent);
+            });
+            studioCanvas.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY });
+                studioCanvas.dispatchEvent(mouseEvent);
+            });
+            window.addEventListener('touchend', () => {
+                window.dispatchEvent(new MouseEvent('mouseup'));
+            });
+        }
+
+        function setStudioType(type) {
+            currentType = type;
+            ['TTTT', 'CCCC', 'C4C4C4C4', 'TCTC', 'TGTG'].forEach(t => {
+                const btn = document.getElementById(`btn-st-${t}`);
+                if (t === type) {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border transition border-indigo-600 bg-indigo-600 text-white";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border transition border-slate-200 text-slate-700 hover:bg-slate-50";
+                }
+            });
+
+            document.getElementById('active-rule-badge').innerText = `${type} 규칙 적용 중`;
+            renderStudioCanvas();
+        }
+
+        function toggleGridSnap() {
+            gridSnap = !gridSnap;
+            const btn = document.getElementById('btn-grid-snap');
+            if (gridSnap) {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-600 bg-indigo-50 text-indigo-700 flex items-center space-x-1";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center space-x-1";
+            }
+        }
+
+        function resetCurrentShape() {
+            edgeControlPoints = {
+                top: [{x: 0, y: 0}, {x: 0.33, y: 0}, {x: 0.66, y: 0}, {x: 1, y: 0}],
+                left: [{x: 0, y: 0}, {x: 0, y: 0.33}, {x: 0, y: 0.66}, {x: 0, y: 1}]
+            };
+            renderStudioCanvas();
+        }
+
+        function loadPreset(presetKey) {
+            if (PRESETS[presetKey]) {
+                edgeControlPoints = JSON.parse(JSON.stringify(PRESETS[presetKey]));
+                renderStudioCanvas();
+            }
+        }
+
+        function addControlPoint() {
+            // Insert point in top edge
+            if (edgeControlPoints.top.length < 8) {
+                const pts = edgeControlPoints.top;
+                const midX = (pts[1].x + pts[2].x) / 2;
+                const midY = (pts[1].y + pts[2].y) / 2;
+                pts.splice(2, 0, { x: midX, y: midY });
+            }
+            renderStudioCanvas();
+        }
+
+        function removeControlPoint() {
+            if (edgeControlPoints.top.length > 3) {
+                edgeControlPoints.top.splice(1, 1);
+            }
+            renderStudioCanvas();
+        }
+
+        // Generate full 4-edge polygon based on currentType transformations
+        function generateFullPolygon(ptsTop, ptsLeft, boxSize, startX, startY) {
+            // Helper to transform relative point (0..1) to canvas pixels
+            const toPixel = (relX, relY) => ({ x: startX + relX * boxSize, y: startY + relY * boxSize });
+
+            let topEdge = ptsTop.map(p => toPixel(p.x, p.y));
+            let leftEdge = ptsLeft.map(p => toPixel(p.x, p.y));
+            let rightEdge = [];
+            let bottomEdge = [];
+
+            // Compute Bottom and Right edges based on current Heesch Type
+            if (currentType === 'TTTT') {
+                // Bottom is Translation of Top down (+boxSize)
+                bottomEdge = ptsTop.map(p => toPixel(p.x, p.y + 1));
+                // Right is Translation of Left right (+boxSize)
+                rightEdge = ptsLeft.map(p => toPixel(p.x + 1, p.y));
+            } 
+            else if (currentType === 'CCCC') {
+                // Self 180° rotation around edge center
+                bottomEdge = ptsTop.map(p => toPixel(1 - p.x, 1 - p.y));
+                rightEdge = ptsLeft.map(p => toPixel(1 - p.x, 1 - p.y));
+            } 
+            else if (currentType === 'C4C4C4C4') {
+                // 90° corner rotation
+                rightEdge = ptsTop.map(p => toPixel(1 - p.y, p.x));
+                bottomEdge = ptsLeft.map(p => toPixel(p.y, 1 - p.x));
+            } 
+            else if (currentType === 'TCTC') {
+                bottomEdge = ptsTop.map(p => toPixel(p.x, p.y + 1)); // Translation
+                rightEdge = ptsLeft.map(p => toPixel(1 - p.x, 1 - p.y)); // Center rotation
+            } 
+            else if (currentType === 'TGTG') {
+                bottomEdge = ptsTop.map(p => toPixel(p.x, p.y + 1)); // Translation
+                rightEdge = ptsLeft.map(p => toPixel(1 - p.x, p.y)); // Glide Reflection
+            }
+
+            return { topEdge, rightEdge, bottomEdge, leftEdge };
+        }
+
+        function renderStudioCanvas() {
+            if (!studioCtx) return;
+            const w = studioCanvas.width;
+            const h = studioCanvas.height;
+            studioCtx.clearRect(0, 0, w, h);
+
+            const boxSize = 240;
+            const startX = (w - boxSize) / 2;
+            const startY = (h - boxSize) / 2;
+
+            // 1. Draw Original Reference Square
+            studioCtx.strokeStyle = '#e2e8f0';
+            studioCtx.lineWidth = 1;
+            studioCtx.setLineDash([6, 6]);
+            studioCtx.strokeRect(startX, startY, boxSize, boxSize);
+            studioCtx.setLineDash([]);
+
+            // 2. Compute Polygon
+            const poly = generateFullPolygon(edgeControlPoints.top, edgeControlPoints.left, boxSize, startX, startY);
+
+            // 3. Fill Polygon Base
+            studioCtx.beginPath();
+            // Top Edge
+            poly.topEdge.forEach((p, i) => i === 0 ? studioCtx.moveTo(p.x, p.y) : studioCtx.lineTo(p.x, p.y));
+            // Right Edge
+            poly.rightEdge.forEach(p => studioCtx.lineTo(p.x, p.y));
+            // Bottom Edge (Reversed)
+            [...poly.bottomEdge].reverse().forEach(p => studioCtx.lineTo(p.x, p.y));
+            // Left Edge (Reversed)
+            [...poly.leftEdge].reverse().forEach(p => studioCtx.lineTo(p.x, p.y));
+            studioCtx.closePath();
+
+            studioCtx.fillStyle = 'rgba(99, 102, 241, 0.12)';
+            studioCtx.fill();
+
+            // 4. Draw Edges with Colors & Lines
+            function drawEdgeLine(pts, color, isDashed = false) {
+                studioCtx.strokeStyle = color;
+                studioCtx.lineWidth = 3;
+                if (isDashed) studioCtx.setLineDash([4, 4]);
+                studioCtx.beginPath();
+                pts.forEach((p, i) => i === 0 ? studioCtx.moveTo(p.x, p.y) : studioCtx.lineTo(p.x, p.y));
+                studioCtx.stroke();
+                studioCtx.setLineDash([]);
+            }
+
+            drawEdgeLine(poly.topEdge, '#6366f1'); // Master Top (Indigo)
+            drawEdgeLine(poly.leftEdge, '#10b981'); // Master Left (Emerald)
+            drawEdgeLine(poly.bottomEdge, '#818cf8', true); // Derived Bottom
+            drawEdgeLine(poly.rightEdge, '#34d399', true); // Derived Right
+
+            // 5. Draw Control Point Handles
+            edgeControlPoints.top.forEach((p, idx) => {
+                if (idx === 0 || idx === edgeControlPoints.top.length - 1) return; // Skip endpoints
+                const px = startX + p.x * boxSize;
+                const py = startY + p.y * boxSize;
+
+                studioCtx.fillStyle = '#4f46e5';
+                studioCtx.beginPath();
+                studioCtx.arc(px, py, 7, 0, Math.PI * 2);
+                studioCtx.fill();
+                studioCtx.strokeStyle = '#ffffff';
+                studioCtx.lineWidth = 2;
+                studioCtx.stroke();
+            });
+
+            edgeControlPoints.left.forEach((p, idx) => {
+                if (idx === 0 || idx === edgeControlPoints.left.length - 1) return;
+                const px = startX + p.x * boxSize;
+                const py = startY + p.y * boxSize;
+
+                studioCtx.fillStyle = '#059669';
+                studioCtx.beginPath();
+                studioCtx.arc(px, py, 7, 0, Math.PI * 2);
+                studioCtx.fill();
+                studioCtx.strokeStyle = '#ffffff';
+                studioCtx.lineWidth = 2;
+                studioCtx.stroke();
+            });
+        }
+
+        // Pointer Drag Handler
+        function onStudioPointerDown(e) {
+            const rect = studioCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const w = studioCanvas.width;
+            const boxSize = 240;
+            const startX = (w - boxSize) / 2;
+            const startY = (w - boxSize) / 2;
+
+            // Check hit on top edge handles
+            edgeControlPoints.top.forEach((p, idx) => {
+                if (idx === 0 || idx === edgeControlPoints.top.length - 1) return;
+                const px = startX + p.x * boxSize;
+                const py = startY + p.y * boxSize;
+                if (Math.hypot(mouseX - px, mouseY - py) < 12) {
+                    isDragging = true;
+                    activePointInfo = { edge: 'top', index: idx };
+                }
+            });
+
+            // Check hit on left edge handles
+            edgeControlPoints.left.forEach((p, idx) => {
+                if (idx === 0 || idx === edgeControlPoints.left.length - 1) return;
+                const px = startX + p.x * boxSize;
+                const py = startY + p.y * boxSize;
+                if (Math.hypot(mouseX - px, mouseY - py) < 12) {
+                    isDragging = true;
+                    activePointInfo = { edge: 'left', index: idx };
+                }
+            });
+        }
+
+        function onStudioPointerMove(e) {
+            if (!isDragging || !activePointInfo) return;
+            const rect = studioCanvas.getBoundingClientRect();
+            let mouseX = e.clientX - rect.left;
+            let mouseY = e.clientY - rect.top;
+
+            const w = studioCanvas.width;
+            const boxSize = 240;
+            const startX = (w - boxSize) / 2;
+            const startY = (w - boxSize) / 2;
+
+            // Relative coords
+            let relX = (mouseX - startX) / boxSize;
+            let relY = (mouseY - startY) / boxSize;
+
+            if (gridSnap) {
+                relX = Math.round(relX * 20) / 20;
+                relY = Math.round(relY * 20) / 20;
+            }
+
+            if (activePointInfo.edge === 'top') {
+                edgeControlPoints.top[activePointInfo.index] = { x: relX, y: relY };
+            } else {
+                edgeControlPoints.left[activePointInfo.index] = { x: relX, y: relY };
+            }
+
+            renderStudioCanvas();
+        }
+
+        function onStudioPointerUp() {
+            isDragging = false;
+            activePointInfo = null;
+        }
+
+
+        // ====================================================
+        // STEP 4: Tessellation Tiling & Decoration Engine
+        // ====================================================
+        let tilingCanvas, tilingCtx;
+        let fillProgress = 0;
+        let fillAnimTimer = null;
+
+        function initStep4Canvas() {
+            tilingCanvas = document.getElementById('tiling-canvas');
+            if (!tilingCanvas) return;
+            tilingCtx = tilingCanvas.getContext('2d');
+
+            tilingCanvas.addEventListener('click', onTilingCanvasClick);
+        }
+
+        function setTilingTheme(theme) {
+            currentTheme = theme;
+            ['pastel', 'vibrant', 'mono'].forEach(t => {
+                const btn = document.getElementById(`theme-${t}`);
+                if (t === theme) {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-600 bg-indigo-50 text-indigo-700";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-50";
+                }
+            });
+            renderTilingCanvas();
+        }
+
+        function triggerFillAnimation() {
+            if (fillAnimTimer) clearInterval(fillAnimTimer);
+            fillProgress = 0;
+            fillAnimTimer = setInterval(() => {
+                fillProgress += 0.05;
+                if (fillProgress >= 1) {
+                    fillProgress = 1;
+                    clearInterval(fillAnimTimer);
+                }
+                renderTilingCanvas();
+            }, 30);
+        }
+
+        function renderTilingCanvas() {
+            if (!tilingCtx) return;
+            const w = tilingCanvas.width;
+            const h = tilingCanvas.height;
+            tilingCtx.clearRect(0, 0, w, h);
+
+            const tileSize = 120;
+            const rows = 7, cols = 7;
+            const startX = -20, startY = -20;
+
+            const poly = generateFullPolygon(edgeControlPoints.top, edgeControlPoints.left, tileSize, 0, 0);
+
+            // Palette colors
+            const PALETTES = {
+                pastel: ['#c7d2fe', '#fbcfe8', '#a7f3d0', '#fef08a'],
+                vibrant: ['#818cf8', '#f472b6', '#34d399', '#fbbf24'],
+                mono: ['#ffffff', '#f8fafc', '#f1f5f9', '#e2e8f0']
+            };
+            const palette = PALETTES[currentTheme];
+
+            const totalTiles = rows * cols;
+            const visibleTilesCount = Math.floor(totalTiles * fillProgress);
+
+            let tileCounter = 0;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    tileCounter++;
+                    if (tileCounter > visibleTilesCount) continue;
+
+                    tilingCtx.save();
+                    tilingCtx.translate(startX + c * tileSize, startY + r * tileSize);
+
+                    // Apply rotation/flip transformation per type
+                    if (currentType === 'CCCC' && (r + c) % 2 === 1) {
+                        tilingCtx.translate(tileSize / 2, tileSize / 2);
+                        tilingCtx.rotate(Math.PI);
+                        tilingCtx.translate(-tileSize / 2, -tileSize / 2);
+                    } else if (currentType === 'TGTG' && c % 2 === 1) {
+                        tilingCtx.translate(0, tileSize);
+                        tilingCtx.scale(1, -1);
+                    }
+
+                    // Draw Single Tile
+                    tilingCtx.beginPath();
+                    poly.topEdge.forEach((p, i) => i === 0 ? tilingCtx.moveTo(p.x, p.y) : tilingCtx.lineTo(p.x, p.y));
+                    poly.rightEdge.forEach(p => tilingCtx.lineTo(p.x, p.y));
+                    [...poly.bottomEdge].reverse().forEach(p => tilingCtx.lineTo(p.x, p.y));
+                    [...poly.leftEdge].reverse().forEach(p => tilingCtx.lineTo(p.x, p.y));
+                    tilingCtx.closePath();
+
+                    const colorIdx = (r * 3 + c) % palette.length;
+                    tilingCtx.fillStyle = palette[colorIdx];
+                    tilingCtx.fill();
+
+                    tilingCtx.strokeStyle = '#475569';
+                    tilingCtx.lineWidth = 1.5;
+                    tilingCtx.stroke();
+
+                    tilingCtx.restore();
+                }
+            }
+
+            // Draw User Added Stamps
+            stampsList.forEach(st => {
+                tilingCtx.font = '24px serif';
+                tilingCtx.fillText(st.emoji, st.x, st.y);
+            });
+        }
+
+        // Stamp Tooling
+        const STAMP_EMOJIS = {
+            eye1: '👁️', eye2: '✨', mouth1: '👄', mouth2: '😃',
+            crown: '👑', glasses: '👓', star: '⭐'
+        };
+
+        function selectStamp(stampKey) {
+            activeStamp = stampKey;
+        }
+
+        function clearStamps() {
+            stampsList = [];
+            renderTilingCanvas();
+        }
+
+        function onTilingCanvasClick(e) {
+            const rect = tilingCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (STAMP_EMOJIS[activeStamp]) {
+                stampsList.push({
+                    emoji: STAMP_EMOJIS[activeStamp],
+                    x: x - 10,
+                    y: y + 10
+                });
+                renderTilingCanvas();
+            }
+        }
+
+        // Export Work PNG
+        function downloadCanvasImage() {
+            const link = document.createElement('a');
+            link.download = `헤슈타일링_테셀레이션_작품.png`;
+            link.href = tilingCanvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
